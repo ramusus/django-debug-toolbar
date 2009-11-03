@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-10-16 20:40-0700\n"
+"POT-Creation-Date: 2009-11-02 13:13-0800\n"
 "PO-Revision-Date: 2009-08-24 23:08-0600\n"
 "Last-Translator: Alex <alex.gaynor@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -24,14 +24,17 @@ msgid "Settings"
 msgstr ""
 
 #: panels/signals.py:39
-#, fuzzy
 msgid "Signals"
-msgstr "סימן"
+msgstr "סימנים"
 
 #: panels/template.py:47
-#, fuzzy
 msgid "Templates"
-msgstr "תבנית"
+msgstr "תבניות"
+
+#: panels/template.py:52
+#, python-format
+msgid "Templates (%(num_templates)s rendered)"
+msgstr ""
 
 #: panels/timer.py:35 templates/debug_toolbar/panels/cache.html:39
 #: templates/debug_toolbar/panels/logger.html:7
@@ -42,8 +45,9 @@ msgstr "תבנית"
 msgid "Time"
 msgstr "זמן"
 
-#: panels/version.py:12
-msgid "Django Version"
+#: panels/version.py:20
+#, fuzzy
+msgid "Versions"
 msgstr "ג 'נגו גירסה"
 
 #: templates/debug_toolbar/base.html:23
@@ -158,7 +162,7 @@ msgstr "מזהה"
 
 #: templates/debug_toolbar/panels/request_vars.html:73
 msgid "No GET data"
-msgstr ""
+msgstr "שום דבר עבור GET"
 
 #: templates/debug_toolbar/panels/request_vars.html:76
 #, fuzzy
@@ -167,7 +171,7 @@ msgstr "מזהה"
 
 #: templates/debug_toolbar/panels/request_vars.html:95
 msgid "No POST data"
-msgstr ""
+msgstr "שום דבר עבור POST"
 
 #: templates/debug_toolbar/panels/settings_vars.html:5
 msgid "Setting"
@@ -197,15 +201,15 @@ msgstr ""
 msgid "Query"
 msgstr ""
 
-#: templates/debug_toolbar/panels/sql.html:32
+#: templates/debug_toolbar/panels/sql.html:38
 msgid "Line"
 msgstr "שורה"
 
-#: templates/debug_toolbar/panels/sql.html:33
+#: templates/debug_toolbar/panels/sql.html:39
 msgid "Method"
 msgstr ""
 
-#: templates/debug_toolbar/panels/sql.html:34
+#: templates/debug_toolbar/panels/sql.html:40
 msgid "File"
 msgstr "קובץ"
 
@@ -224,7 +228,7 @@ msgstr ""
 #: templates/debug_toolbar/panels/sql_profile.html:10
 #: templates/debug_toolbar/panels/sql_select.html:9
 msgid "Executed SQL"
-msgstr ""
+msgstr "הסבר עבור SQL"
 
 #: templates/debug_toolbar/panels/sql_profile.html:4
 msgid "SQL Profiled"
@@ -232,7 +236,7 @@ msgstr ""
 
 #: templates/debug_toolbar/panels/sql_profile.html:35
 msgid "Error"
-msgstr ""
+msgstr "שגיאה"
 
 #: templates/debug_toolbar/panels/sql_select.html:4
 msgid "SQL Selected"
@@ -273,3 +277,12 @@ msgstr ""
 #: templates/debug_toolbar/panels/timer.html:9
 msgid "Resource"
 msgstr ""
+
+#: templates/debug_toolbar/panels/versions.html:6
+msgid "Package"
+msgstr ""
+
+#: templates/debug_toolbar/panels/versions.html:7
+#, fuzzy
+msgid "Version"
+msgstr "ג 'נגו גירסה"
