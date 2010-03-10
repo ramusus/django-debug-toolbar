@@ -5,13 +5,15 @@ views in any other way is generally not advised.
 """
 
 import os
-import django.views.static
+
 from django.conf import settings
 from django.db import connection
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.utils import simplejson
 from django.utils.hashcompat import sha_constructor
+from django.views.static import serve
+
 
 class InvalidSQLError(Exception):
     def __init__(self, value):
@@ -24,7 +26,7 @@ def debug_media(request, path):
     if root is None:
         parent = os.path.abspath(os.path.dirname(__file__))
         root = os.path.join(parent, 'media', 'debug_toolbar')
-    return django.views.static.serve(request, path, root)
+    return serve(request, path, root)
 
 def sql_select(request):
     """
