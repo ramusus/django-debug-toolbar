@@ -56,10 +56,11 @@ class LoggingPanel(DebugPanel):
         return _("Logging")
 
     def nav_subtitle(self):
+        # FIXME l10n: use ngettext
         return "%s message%s" % (len(handler.get_records()), (len(handler.get_records()) == 1) and '' or 's')
 
     def title(self):
-        return 'Log Messages'
+        return _('Log Messages')
 
     def url(self):
         return ''
@@ -74,4 +75,9 @@ class LoggingPanel(DebugPanel):
                 'file': record.pathname,
                 'line': record.lineno,
             })
-        return render_to_string('debug_toolbar/panels/logger.html', {'records': records})
+
+        context = self.context.copy()
+        context.update({'records': records})
+
+        return render_to_string('debug_toolbar/panels/logger.html', context)
+

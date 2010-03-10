@@ -14,6 +14,7 @@ from django.template.loader import render_to_string
 from django.utils import simplejson
 from django.utils.encoding import force_unicode
 from django.utils.hashcompat import sha_constructor
+from django.utils.translation import ugettext_lazy as _
 
 from debug_toolbar.panels import DebugPanel
 from debug_toolbar.utils import sqlparse
@@ -94,7 +95,7 @@ class DatabaseStatTracker(util.CursorDebugWrapper):
             stacktrace = tidy_stacktrace(traceback.extract_stack())
             _params = ''
             try:
-                _params = simplejson.dumps([force_unicode(x) for x in params])
+                _params = simplejson.dumps([force_unicode(x, strings_only=True) for x in params])
             except TypeError:
                 pass # object not JSON serializable
 
@@ -110,8 +111,7 @@ class DatabaseStatTracker(util.CursorDebugWrapper):
                     cur_frame = cur_frame.f_back
             except:
                 pass
-            finally:
-                del cur_frame
+            del cur_frame
 
             # We keep `sql` to maintain backwards compatibility
             self.db.queries.append({
@@ -137,18 +137,20 @@ class SQLDebugPanel(DebugPanel):
     name = 'SQL'
     has_content = True
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super(self.__class__, self).__init__(*args, **kwargs)
         self._offset = len(connection.queries)
         self._sql_time = 0
         self._queries = []
 
     def nav_title(self):
-        return 'SQL'
+        return _('SQL')
 
     def nav_subtitle(self):
         self._queries = connection.queries[self._offset:]
         self._sql_time = sum([q['duration'] for q in self._queries])
         num_queries = len(self._queries)
+        # TODO l10n: use ngettext
         return "%d %s in %.2fms" % (
             num_queries,
             (num_queries == 1) and 'query' or 'queries',
@@ -156,7 +158,7 @@ class SQLDebugPanel(DebugPanel):
         )
 
     def title(self):
-        return 'SQL Queries'
+        return _('SQL Queries')
 
     def url(self):
         return ''
@@ -172,11 +174,13 @@ class SQLDebugPanel(DebugPanel):
             query['start_offset'] = width_ratio_tally
             width_ratio_tally += query['width_ratio']
 
-        context = {
+        context = self.context.copy()
+        context.update({
             'queries': self._queries,
             'sql_time': self._sql_time,
             'is_mysql': settings.DATABASE_ENGINE == 'mysql',
-        }
+        })
+
         return render_to_string('debug_toolbar/panels/sql.html', context)
 
 def ms_from_timedelta(td):
@@ -193,7 +197,7 @@ class BoldKeywordFilter(sqlparse.filters.Filter):
             is_keyword = token_type in sqlparse.tokens.Keyword
             if is_keyword:
                 yield sqlparse.tokens.Text, '<strong>'
-            yield token_type, value
+            yield token_type, django.utils.html.escape(value)
             if is_keyword:
                 yield sqlparse.tokens.Text, '</strong>'
 

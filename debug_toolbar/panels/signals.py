@@ -39,7 +39,7 @@ class SignalDebugPanel(DebugPanel):
         return _("Signals")
 
     def title(self):
-        return "Signals"
+        return _("Signals")
 
     def url(self):
         return ''
@@ -80,4 +80,8 @@ class SignalDebugPanel(DebugPanel):
                     text = "function %s" % receiver.__name__
                 receivers.append(text)
             signals.append((name, signal, receivers))
-        return render_to_string('debug_toolbar/panels/signals.html', {'signals': signals})
+
+        context = self.context.copy()
+        context.update({'signals': signals})
+
+        return render_to_string('debug_toolbar/panels/signals.html', context)
