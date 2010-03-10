@@ -10,9 +10,22 @@ from django.conf import settings
 from django.db import connection
 from django.http import HttpResponseBadRequest
 from django.shortcuts import render_to_response
+from django.template import TemplateDoesNotExist
 from django.utils import simplejson
 from django.utils.hashcompat import sha_constructor
+from django.utils.safestring import mark_safe
 from django.views.static import serve
+
+try:
+    from pygments import highlight
+    from pygments.lexers import HtmlDjangoLexer
+    from pygments.formatters import HtmlFormatter
+    PYGMENTS_AVAILABLE = True
+except ImportError:
+    PYGMENTS_AVAILABLE = False
+
+
+from debug_toolbar.panels.sql import reformat_sql
 
 
 class InvalidSQLError(Exception):
@@ -38,7 +51,6 @@ def sql_select(request):
         duration: time for SQL to execute passed in from toolbar just for redisplay
         hash: the hash of (secret + sql + params) for tamper checking
     """
-    from debug_toolbar.panels.sql import reformat_sql
     sql = request.GET.get('sql', '')
     params = request.GET.get('params', '')
     hash = sha_constructor(settings.SECRET_KEY + sql + params).hexdigest()
@@ -70,7 +82,6 @@ def sql_explain(request):
         duration: time for SQL to execute passed in from toolbar just for redisplay
         hash: the hash of (secret + sql + params) for tamper checking
     """
-    from debug_toolbar.panels.sql import reformat_sql
     sql = request.GET.get('sql', '')
     params = request.GET.get('params', '')
     hash = sha_constructor(settings.SECRET_KEY + sql + params).hexdigest()
@@ -110,7 +121,6 @@ def sql_profile(request):
         duration: time for SQL to execute passed in from toolbar just for redisplay
         hash: the hash of (secret + sql + params) for tamper checking
     """
-    from debug_toolbar.panels.sql import reformat_sql
     sql = request.GET.get('sql', '')
     params = request.GET.get('params', '')
     hash = sha_constructor(settings.SECRET_KEY + sql + params).hexdigest()
@@ -126,11 +136,12 @@ def sql_profile(request):
             cursor.execute("SET PROFILING=1") # Enable profiling
             cursor.execute(sql, params) # Execute SELECT
             cursor.execute("SET PROFILING=0") # Disable profiling
-            # The Query ID should always be 1 here but I'll subselect to get the last one just in case...
+            # The Query ID should always be 1 here but I'll subselect to get
+            # the last one just in case...
             cursor.execute("SELECT * FROM information_schema.profiling WHERE query_id=(SELECT query_id FROM information_schema.profiling ORDER BY query_id DESC LIMIT 1)")
             headers = [d[0] for d in cursor.description]
             result = cursor.fetchall()
-        except:
+        except Exception:
             result_error = "Profiling is either not available or not supported by your database."
         cursor.close()
         context = {
@@ -148,10 +159,6 @@ def template_source(request):
     Return the source of a template, syntax-highlighted by Pygments if
     it's available.
     """
-    from django.template import TemplateDoesNotExist
-    from django.utils.safestring import mark_safe
-    from django.conf import settings
-
     template_name = request.GET.get('template', None)
     if template_name is None:
         return HttpResponseBadRequest('"template" key is required')
@@ -172,17 +179,12 @@ def template_source(request):
     except ImportError: # Django 1.1 ...
         from django.template.loader import find_template_source
         source, origin = find_template_source(template_name)
-
-    try:
-        from pygments import highlight
-        from pygments.lexers import HtmlDjangoLexer
-        from pygments.formatters import HtmlFormatter
-
+    
+    if PYGMENTS_AVAILABLE:
         source = highlight(source, HtmlDjangoLexer(), HtmlFormatter())
         source = mark_safe(source)
         source.pygmentized = True
-    except ImportError:
-        pass
+
 
     return render_to_response('debug_toolbar/panels/template_source.html', {
         'source': source,
