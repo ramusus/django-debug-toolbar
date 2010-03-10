@@ -1,11 +1,13 @@
-import time
 import inspect
+import time
 
 from django.core import cache
 from django.core.cache.backends.base import BaseCache
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+
 from debug_toolbar.panels import DebugPanel
+
 
 class CacheStatTracker(BaseCache):
     """A small class used to track cache calls."""
@@ -83,8 +85,7 @@ class CacheDebugPanel(DebugPanel):
             cache.cache.reset()
             self.cache = cache.cache
         else:
-            self.cache = CacheStatTracker(cache.cache)
-            cache.cache = self.cache
+            self.cache = cache.cache = CacheStatTracker(cache.cache)
 
     def nav_title(self):
         return _('Cache: %.2fms') % self.cache.total_time

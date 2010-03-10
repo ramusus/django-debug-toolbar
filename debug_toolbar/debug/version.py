@@ -1,9 +1,10 @@
 import sys
+
 from django import get_version
 from django.conf import settings
 
-class DebugVersions(object):
 
+class DebugVersions(object):
     def django_version(self):
         return get_version()
 

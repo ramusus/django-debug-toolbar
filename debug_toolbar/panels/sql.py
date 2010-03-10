@@ -1,8 +1,8 @@
-from datetime import datetime
 import os
 import sys
 import SocketServer
 import traceback
+from datetime import datetime
 
 import django
 from django.conf import settings
@@ -23,7 +23,7 @@ from debug_toolbar.utils import sqlparse
 django_path = os.path.realpath(os.path.dirname(django.__file__))
 socketserver_path = os.path.realpath(os.path.dirname(SocketServer.__file__))
 
-# TODO:This should be set in the toolbar loader as a default and panels should
+# TODO: This should be set in the toolbar loader as a default and panels should
 # get a copy of the toolbar object with access to its config dictionary
 SQL_WARNING_THRESHOLD = getattr(settings, 'DEBUG_TOOLBAR_CONFIG', {}) \
                             .get('SQL_WARNING_THRESHOLD', 500)
@@ -38,8 +38,8 @@ def tidy_stacktrace(strace):
     trace = []
     for s in strace[:-1]:
         s_path = os.path.realpath(s[0])
-        if getattr(settings, 'DEBUG_TOOLBAR_CONFIG', {}).get('HIDE_DJANGO_SQL', True) \
-            and django_path in s_path and not 'django/contrib' in s_path:
+        if (getattr(settings, 'DEBUG_TOOLBAR_CONFIG', {}).get('HIDE_DJANGO_SQL', True)
+            and django_path in s_path and not 'django/contrib' in s_path):
             continue
         if socketserver_path in s_path:
             continue

@@ -1,7 +1,9 @@
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from debug_toolbar.panels import DebugPanel
+
 from debug_toolbar.debug.version import DebugVersions
+from debug_toolbar.panels import DebugPanel
+
 
 class VersionDebugPanel(DebugPanel):
     """

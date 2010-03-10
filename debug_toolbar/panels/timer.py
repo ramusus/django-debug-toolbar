@@ -1,12 +1,11 @@
-try:
-    import resource
-except ImportError:
-    pass # Will fail on Win32 systems
 import time
+
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
-from debug_toolbar.panels import DebugPanel
+
 from debug_toolbar.debug.timer import DebugTimer
+from debug_toolbar.panels import DebugPanel
+
 
 class TimerDebugPanel(DebugPanel):
     """

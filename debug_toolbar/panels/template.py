@@ -5,11 +5,15 @@ from django import http
 from django.conf import settings
 from django.core.signals import request_started
 from django.dispatch import Signal
+from django.template import Template
 from django.template.context import get_standard_processors
 from django.template.loader import render_to_string
 from django.test.signals import template_rendered
+from django.test.utils import instrumented_test_render
 from django.utils.translation import ugettext_lazy as _
+
 from debug_toolbar.panels import DebugPanel
+
 
 # Code taken and adapted from Simon Willison and Django Snippets:
 # http://www.djangosnippets.org/snippets/766/
@@ -17,8 +21,6 @@ from debug_toolbar.panels import DebugPanel
 # Monkeypatch instrumented test renderer from django.test.utils - we could use
 # django.test.utils.setup_test_environment for this but that would also set up
 # e-mail interception, which we don't want
-from django.test.utils import instrumented_test_render
-from django.template import Template
 if Template.render != instrumented_test_render:
     Template.original_render = Template.render
     Template.render = instrumented_test_render
@@ -28,6 +30,7 @@ def new_template_init(self, template_string, origin=None, name='<Unknown Templat
     old_template_init(self, template_string, origin, name)
     self.origin = origin
 Template.__init__ = new_template_init
+
 
 class TemplateDebugPanel(DebugPanel):
     """

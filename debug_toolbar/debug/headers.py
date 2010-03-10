@@ -26,5 +26,5 @@ class DebugHeaders(object):
 
     def available_headers(self, request):
         return dict(
-            [(k, request.META[k]) for k in self.header_filter if k in request.META]
+            [(k, v) for k, v in request.META.items() if k in self.header_filter]
         )

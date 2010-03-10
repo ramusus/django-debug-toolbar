@@ -1,10 +1,10 @@
 import sys
 
 from django.conf import settings
-from django.core.signals import request_started, request_finished, \
-    got_request_exception
-from django.db.models.signals import class_prepared, pre_init, post_init, \
-    pre_save, post_save, pre_delete, post_delete, post_syncdb
+from (django.core.signals import request_started, request_finished,
+    got_request_exception)
+from django.db.models.signals import (class_prepared, pre_init, post_init,
+    pre_save, post_save, pre_delete, post_delete, post_syncdb)
 from django.dispatch.dispatcher import WEAKREF_TYPES
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
@@ -15,6 +15,7 @@ except ImportError:
     connection_created = None
 
 from debug_toolbar.panels import DebugPanel
+
 
 class SignalDebugPanel(DebugPanel):
     name = "Signals"

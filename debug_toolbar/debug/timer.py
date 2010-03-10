@@ -1,18 +1,13 @@
 try:
     import resource
 except ImportError:
-    pass # Will fail on Win32 systems
+    resource = None
 import time
 
 
 class DebugTimer(object):
-    try: # if resource module not available, don't show content panel
-        resource
-    except NameError:
-        has_resource = False
-    else:
-        has_resource = True
-
+    has_resource = resource is not None
+    
     def elapsed_ru(self, name):
         return getattr(self._end_rusage, name) - getattr(self._start_rusage, name)
 

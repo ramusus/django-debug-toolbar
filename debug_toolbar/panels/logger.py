@@ -4,9 +4,12 @@ try:
     import threading
 except ImportError:
     threading = None
+
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext_lazy as _
+
 from debug_toolbar.panels import DebugPanel
+
 
 class ThreadTrackingHandler(logging.Handler):
     def __init__(self):
