@@ -100,13 +100,14 @@ class DebugToolbarMiddleware(object):
                         {'redirect_to': redirect_to}
                     )
         if response.status_code == 200:
-            for panel in self.debug_toolbars[request].panels:
+            toolbar = self.debug_toolbars[request]
+            for panel in toolbar.panels:
                 panel.process_response(request, response)
             if response['Content-Type'].split(';')[0] in _HTML_TYPES:
                 response.content = replace_insensitive(
                     smart_unicode(response.content), 
                     self.tag,
-                    smart_unicode(self.debug_toolbars[request].render_toolbar() + self.tag)
+                    smart_unicode(toolbar.render_toolbar() + self.tag)
                 )
             if 'Content-Length' in response:
                 response['Content-Length'] = len(response.content)
