@@ -126,33 +126,33 @@ def sql_profile(request):
     hash = sha_constructor(settings.SECRET_KEY + sql + params).hexdigest()
     if hash != request.GET.get('hash', ''):
         return HttpResponseBadRequest('Tamper alert') # SQL Tampering alert
-    if sql.lower().strip().startswith('select'):
-        params = simplejson.loads(params)
-        cursor = connection.cursor()
-        result = None
-        headers = None
-        result_error = None
-        try:
-            cursor.execute("SET PROFILING=1") # Enable profiling
-            cursor.execute(sql, params) # Execute SELECT
-            cursor.execute("SET PROFILING=0") # Disable profiling
-            # The Query ID should always be 1 here but I'll subselect to get
-            # the last one just in case...
-            cursor.execute("SELECT * FROM information_schema.profiling WHERE query_id=(SELECT query_id FROM information_schema.profiling ORDER BY query_id DESC LIMIT 1)")
-            headers = [d[0] for d in cursor.description]
-            result = cursor.fetchall()
-        except Exception:
-            result_error = "Profiling is either not available or not supported by your database."
-        cursor.close()
-        context = {
-            'result': result,
-            'result_error': result_error,
-            'sql': reformat_sql(cursor.db.ops.last_executed_query(cursor, sql, params)),
-            'duration': request.GET.get('duration', 0.0),
-            'headers': headers,
-        }
-        return render_to_response('debug_toolbar/panels/sql_profile.html', context)
-    raise InvalidSQLError("Only 'select' queries are allowed.")
+    if not sql.lower().strip().startswith('select'):
+        raise InvalidSQLError("Only 'select' queries are allowed.")
+    params = simplejson.loads(params)
+    cursor = connection.cursor()
+    result = None
+    headers = None
+    result_error = None
+    try:
+        cursor.execute("SET PROFILING=1") # Enable profiling
+        cursor.execute(sql, params) # Execute SELECT
+        cursor.execute("SET PROFILING=0") # Disable profiling
+        # The Query ID should always be 1 here but I'll subselect to get
+        # the last one just in case...
+        cursor.execute("SELECT * FROM information_schema.profiling WHERE query_id=(SELECT query_id FROM information_schema.profiling ORDER BY query_id DESC LIMIT 1)")
+        headers = [d[0] for d in cursor.description]
+        result = cursor.fetchall()
+    except Exception:
+        result_error = "Profiling is either not available or not supported by your database."
+    cursor.close()
+    context = {
+        'result': result,
+        'result_error': result_error,
+        'sql': reformat_sql(cursor.db.ops.last_executed_query(cursor, sql, params)),
+        'duration': request.GET.get('duration', 0.0),
+        'headers': headers,
+    }
+    return render_to_response('debug_toolbar/panels/sql_profile.html', context)
 
 def template_source(request):
     """
