@@ -15,17 +15,21 @@ _HTML_TYPES = ('text/html', 'application/xhtml+xml')
 
 DEBUG_TOOLBAR_CONFIG = getattr(settings, "DEBUG_TOOLBAR_CONFIG", {})
 
-def replace_insensitive(string, target, replacement):
+def replace_insensitive(request, string, target, replacement):
     """
     Similar to string.replace() but is case insensitive
     Code borrowed from: http://forums.devshed.com/python-programming-11/case-insensitive-string-replace-490921.html
     """
+
     no_case = string.lower()
     index = no_case.rfind(target.lower())
-    if index >= 0:
-        return string[:index] + replacement + string[index + len(target):]
-    else: # no results so return the original string
+    # if ajax request or request by testserver => return without toolbar
+    if request.is_ajax() or request.META.get('SERVER_NAME', None) == 'testserver':
         return string
+    elif index >= 0:
+        return string[:index] + replacement + string[index + len(target):]
+    else: # added toolbar for introspecting ajax queries in new window
+        return string + replacement
 
 class DebugToolbarMiddleware(object):
     """
@@ -46,7 +50,7 @@ class DebugToolbarMiddleware(object):
         'debug_toolbar.panels.logger.LoggingPanel',
     ]
 
-    
+
     def __init__(self):
         self.debug_toolbars = {}
 
@@ -55,7 +59,7 @@ class DebugToolbarMiddleware(object):
 
         tag = DEBUG_TOOLBAR_CONFIG.get('TAG', 'body')
         self.tag = u'</' + tag + u'>'
-        
+
         urlconfs = DEBUG_TOOLBAR_CONFIG.get("urlconfs", []) + [settings.ROOT_URLCONF]
         self.panel_classes = DEBUG_TOOLBAR_CONFIG.get("DEBUG_TOOLBAR_PANELS",
             self.panel_classes)
@@ -105,7 +109,8 @@ class DebugToolbarMiddleware(object):
                 panel.process_response(request, response)
             if response['Content-Type'].split(';')[0] in _HTML_TYPES:
                 response.content = replace_insensitive(
-                    smart_unicode(response.content), 
+                    request,
+                    smart_unicode(response.content),
                     self.tag,
                     smart_unicode(toolbar.render_toolbar() + self.tag)
                 )
@@ -113,14 +118,14 @@ class DebugToolbarMiddleware(object):
                 response['Content-Length'] = len(response.content)
         del self.debug_toolbars[request]
         return response
-    
+
     @property
     def urls(self):
         return self.get_urls()
-    
+
     def get_urls(self):
         return patterns("",
-            url(r"^%s/" % self.PREFIX, include(patterns("debug_toolbar.views", 
+            url(r"^%s/" % self.PREFIX, include(patterns("debug_toolbar.views",
                 url(r'^m/(.*)$', 'debug_media'),
                 url(r'^sql_select/$', 'sql_select', name='sql_select'),
                 url(r'^sql_explain/$', 'sql_explain', name='sql_explain'),
