@@ -28,7 +28,7 @@ def replace_insensitive(request, string, target, replacement):
         return string
     elif index >= 0:
         return string[:index] + replacement + string[index + len(target):]
-    else: # added toolbar for introspecting ajax queries in new window
+    else: # added toolbar for introspecting ajax requests with any content in new window
         return string + replacement
 
 class DebugToolbarMiddleware(object):
